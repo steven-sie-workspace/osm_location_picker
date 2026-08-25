@@ -1,5 +1,4 @@
-import 'package:flutter/foundation.dart'
-    show kIsWeb, defaultTargetPlatform, TargetPlatform;
+import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -24,18 +23,13 @@ class LocationPickerBody extends StatefulWidget {
   final LocationPickerTheme theme;
   final LocationPickerStrings strings;
 
-  const LocationPickerBody({
-    super.key,
-    required this.theme,
-    required this.strings,
-  });
+  const LocationPickerBody({super.key, required this.theme, required this.strings});
 
   @override
   State<LocationPickerBody> createState() => _LocationPickerBodyState();
 }
 
-class _LocationPickerBodyState extends State<LocationPickerBody>
-    with TickerProviderStateMixin {
+class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProviderStateMixin {
   late final MapController _mapController;
 
   @override
@@ -54,25 +48,13 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
     try {
       final camera = _mapController.camera;
 
-      final controller = AnimationController(
-        duration: const Duration(milliseconds: 500),
-        vsync: this,
-      );
+      final controller = AnimationController(duration: const Duration(milliseconds: 500), vsync: this);
 
-      final latTween = Tween<double>(
-        begin: camera.center.latitude,
-        end: destLocation.latitude,
-      );
-      final lngTween = Tween<double>(
-        begin: camera.center.longitude,
-        end: destLocation.longitude,
-      );
+      final latTween = Tween<double>(begin: camera.center.latitude, end: destLocation.latitude);
+      final lngTween = Tween<double>(begin: camera.center.longitude, end: destLocation.longitude);
       final zoomTween = Tween<double>(begin: camera.zoom, end: destZoom);
 
-      final animation = CurvedAnimation(
-        parent: controller,
-        curve: Curves.fastOutSlowIn,
-      );
+      final animation = CurvedAnimation(parent: controller, curve: Curves.fastOutSlowIn);
 
       controller.addListener(() {
         if (mounted) {
@@ -121,10 +103,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
         final hasPosition = state.position != null;
 
         // The map is always rendered as the base layer, centering on the current resolved position or current center fallback.
-        final initialMapCenter =
-            state.position ??
-            state.currentCenter ??
-            const LatLng(33.3152, 44.3661);
+        final initialMapCenter = state.position ?? state.currentCenter ?? const LatLng(33.3152, 44.3661);
 
         final addressText =
             (state.addressData.state == StatusState.loading ||
@@ -133,8 +112,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
                 ? widget.strings.fetchingLocation
                 : (state.addressData.state == StatusState.failure)
                 ? widget.strings.searchHint
-                : (state.addressData.data != null &&
-                    state.addressData.data!.isNotEmpty)
+                : (state.addressData.data != null && state.addressData.data!.isNotEmpty)
                 ? state.addressData.data!
                 : widget.strings.unknownLocation;
 
@@ -166,28 +144,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
                         1,
                         0,
                       ])
-                      : const ColorFilter.matrix([
-                        1,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        1,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        1,
-                        0,
-                        0,
-                        0,
-                        0,
-                        0,
-                        1,
-                        0,
-                      ]),
+                      : const ColorFilter.matrix([1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0]),
               child: FlutterMap(
                 mapController: _mapController,
                 options: MapOptions(
@@ -205,8 +162,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
                 ),
                 children: [
                   TileLayer(
-                    urlTemplate:
-                        'https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png',
+                    urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/positron/{z}/{x}/{y}{r}.png',
                     userAgentPackageName: 'com.location_picker.app',
                     subdomains: const ['a', 'b', 'c', 'd'],
                   ),
@@ -215,15 +171,10 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
             ),
 
             // My Location Button
-            if (hasPosition)
-              MyLocationButton(
-                theme: widget.theme,
-                onTap: () => cubit.getCurrentLocation(),
-              ),
+            if (hasPosition) MyLocationButton(theme: widget.theme, onTap: () => cubit.getCurrentLocation()),
 
             // Center Pin Marker (Only active when position is available)
-            if (hasPosition)
-              MapCenterMarker(isMoving: state.isMoving, theme: widget.theme),
+            if (hasPosition) MapCenterMarker(isMoving: state.isMoving, theme: widget.theme),
 
             // Address Header (Always visible)
             MapAddressHeader(
@@ -232,8 +183,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
               onTap: () {
                 final isMobile =
                     !kIsWeb &&
-                    (defaultTargetPlatform == TargetPlatform.android ||
-                        defaultTargetPlatform == TargetPlatform.iOS);
+                    (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS);
                 if (isMobile) {
                   showModalBottomSheet(
                     context: context,
@@ -272,26 +222,18 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
                 theme: widget.theme,
                 title: widget.strings.confirmLocation,
                 onTap: () {
-                  final currentState =
-                      context.read<LocationPickerCubit>().state;
-                  if (currentState.addressData.state == StatusState.loading ||
-                      currentState.isMoving) {
+                  final currentState = context.read<LocationPickerCubit>().state;
+                  if (currentState.addressData.state == StatusState.loading || currentState.isMoving) {
                     return;
                   }
                   if (currentState.currentCenter != null) {
                     final resolvedAddress =
-                        (currentState.addressData.data != null &&
-                                currentState.addressData.data!
-                                    .trim()
-                                    .isNotEmpty)
+                        (currentState.addressData.data != null && currentState.addressData.data!.trim().isNotEmpty)
                             ? currentState.addressData.data!
                             : widget.strings.currentLocation;
-                    Navigator.of(context).pop(
-                      LocationModel(
-                        latLng: currentState.currentCenter,
-                        address: resolvedAddress,
-                      ),
-                    );
+                    Navigator.of(
+                      context,
+                    ).pop(LocationModel(latLng: currentState.currentCenter, address: resolvedAddress));
                   }
                 },
               ),
@@ -300,19 +242,14 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
             if (state.addressData.state == StatusState.failure)
               Positioned.fill(
                 child: ColoredBox(
-                  color:
-                      isDark
-                          ? Colors.black.withValues(alpha: 0.85)
-                          : Colors.white.withValues(alpha: 0.85),
+                  color: isDark ? Colors.black.withValues(alpha: 0.85) : Colors.white.withValues(alpha: 0.85),
                   child: LocationPickerErrorWidget(
                     theme: widget.theme,
                     message: state.addressData.exception,
                     onDismiss: () => cubit.dismissError(),
                     onRetry: () {
                       if (hasPosition) {
-                        cubit.getAddressFromLatLng(
-                          state.currentCenter ?? state.position!,
-                        );
+                        cubit.getAddressFromLatLng(state.currentCenter ?? state.position!);
                       } else {
                         cubit.getCurrentLocation(position: state.currentCenter);
                       }
@@ -322,25 +259,16 @@ class _LocationPickerBodyState extends State<LocationPickerBody>
               ),
 
             // Centered circular loading indicator as a non-blocking overlay on top of the map (only shown on initial load before coordinates are ready)
-            if ((state.addressData.state == StatusState.loading ||
-                    state.addressData.state == StatusState.initial) &&
+            if ((state.addressData.state == StatusState.loading || state.addressData.state == StatusState.initial) &&
                 !hasPosition)
               Center(
                 child:
                     widget.theme.loadingLottieAsset != null
-                        ? Lottie.asset(
-                          widget.theme.loadingLottieAsset!,
-                          width: 80,
-                          height: 80,
-                          fit: BoxFit.contain,
-                        )
+                        ? Lottie.asset(widget.theme.loadingLottieAsset!, width: 80, height: 80, fit: BoxFit.contain)
                         : SizedBox(
                           width: 40,
                           height: 40,
-                          child: CircularProgressIndicator(
-                            color: widget.theme.primaryColor,
-                            strokeWidth: 3.5,
-                          ),
+                          child: CircularProgressIndicator(color: widget.theme.primaryColor, strokeWidth: 3.5),
                         ),
               ),
           ],

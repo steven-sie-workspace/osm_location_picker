@@ -61,7 +61,7 @@ class NominatimService {
         },
         options: Options(
           headers: {
-            'Accept-Language': 'ar,en',
+            'Accept-Language': 'en',
             'User-Agent': 'LocationPicker/1.0',
           },
           receiveTimeout: const Duration(seconds: 5),

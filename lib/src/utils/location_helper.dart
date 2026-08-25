@@ -29,9 +29,9 @@ class LocationHelper {
     try {
       final response = await _dio.get(
         'https://nominatim.openstreetmap.org/reverse'
-        '?lat=$lat&lon=$lng&format=json&accept-language=ar,en',
+        '?lat=$lat&lon=$lng&format=json&accept-language=en',
         options: Options(
-          headers: {'User-Agent': userAgent, 'Accept-Language': 'ar,en'},
+          headers: {'User-Agent': userAgent, 'Accept-Language': 'en'},
           receiveTimeout: const Duration(seconds: 4),
         ),
       );
