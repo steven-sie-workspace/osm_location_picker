@@ -162,7 +162,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
                 ),
                 children: [
                   TileLayer(
-                    urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/positron/{z}/{x}/{y}{r}.png',
+                    urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png',
                     userAgentPackageName: 'com.location_picker.app',
                     subdomains: const ['a', 'b', 'c', 'd'],
                   ),
