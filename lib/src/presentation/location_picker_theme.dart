@@ -12,6 +12,8 @@ class LocationPickerTheme {
   /// Scaffold / map overlay background colour.
   final Color backgroundColor;
 
+  final Color? appbarForegroundColor;
+
   /// Card surface colour (search bar, address header, etc.).
   final Color cardColor;
 
@@ -46,6 +48,7 @@ class LocationPickerTheme {
   const LocationPickerTheme({
     this.primaryColor = const Color(0xffEA3433),
     this.backgroundColor = const Color(0xffFDF2F2),
+    this.appbarForegroundColor,
     this.cardColor = const Color(0xffffffff),
     this.borderColor = const Color(0xffFCD6D6),
     this.textDarkColor = const Color(0xff0A100B),
@@ -91,8 +94,7 @@ class LocationPickerTheme {
       fabShadow: fabShadow ?? this.fabShadow,
       loadingLottieAsset: loadingLottieAsset ?? this.loadingLottieAsset,
       errorLottieAsset: errorLottieAsset ?? this.errorLottieAsset,
-      noInternetLottieAsset:
-          noInternetLottieAsset ?? this.noInternetLottieAsset,
+      noInternetLottieAsset: noInternetLottieAsset ?? this.noInternetLottieAsset,
     );
   }
 
@@ -114,8 +116,7 @@ class LocationPickerTheme {
               ? Theme.of(context).primaryColor.withValues(alpha: 0.3)
               : Theme.of(context).primaryColor.withValues(alpha: 0.15),
       textDarkColor: isDark ? const Color(0xffffffff) : const Color(0xff0A100B),
-      textLightColor:
-          isDark ? const Color(0xff0A100B) : const Color(0xffffffff),
+      textLightColor: isDark ? const Color(0xff0A100B) : const Color(0xffffffff),
       loadingLottieAsset: loadingLottieAsset,
       errorLottieAsset: errorLottieAsset,
       noInternetLottieAsset: noInternetLottieAsset,

@@ -37,13 +37,7 @@ class LocationPickerView extends StatelessWidget {
   final LocationPickerStrings? strings;
 
   /// Creates a [LocationPickerView].
-  const LocationPickerView({
-    super.key,
-    this.initialLatLng,
-    this.initialAddress,
-    this.theme,
-    this.strings,
-  });
+  const LocationPickerView({super.key, this.initialLatLng, this.initialAddress, this.theme, this.strings});
 
   @override
   Widget build(BuildContext context) {
@@ -79,15 +73,14 @@ class LocationPickerView extends StatelessWidget {
             elevation: 0,
             systemOverlayStyle: SystemUiOverlayStyle(
               statusBarColor: Colors.transparent,
-              statusBarIconBrightness:
-                  isDark ? Brightness.light : Brightness.dark,
+              statusBarIconBrightness: isDark ? Brightness.light : Brightness.dark,
               statusBarBrightness: isDark ? Brightness.dark : Brightness.light,
             ),
             titleSpacing: 0,
             title: Text(
               activeStrings.title,
               style: TextStyle(
-                color: activeTheme.textDarkColor,
+                color: activeTheme.appbarForegroundColor ?? activeTheme.textDarkColor,
                 fontWeight: FontWeight.w700,
                 fontSize: 18,
               ),
@@ -96,7 +89,7 @@ class LocationPickerView extends StatelessWidget {
             leading: IconButton(
               icon: Icon(
                 Icons.arrow_back_ios_new_rounded,
-                color: activeTheme.textDarkColor,
+                color: activeTheme.appbarForegroundColor ?? activeTheme.textDarkColor,
                 size: 20,
               ),
               onPressed: () => Navigator.of(context).pop(),
