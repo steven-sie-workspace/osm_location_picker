@@ -13,7 +13,7 @@ Users can pan/zoom the map, search for addresses, and tap to confirm a location.
 
 ## Features
 
-- 🗺️ Interactive map using `flutter_map` + OpenStreetMap tiles
+- 🗺️ Interactive map using `flutter_map` + OpenStreetMap data from [OpenFreeMap](https://openfreemap.org), drawn on the device in the light grey Positron style (pure Dart, no API key)
 - 🔍 Address search powered by the Nominatim geocoding service
 - 📍 Jump to the device's current GPS location with one tap
 - 🎨 Fully themeable via `LocationPickerTheme`
@@ -181,7 +181,9 @@ final model2 = LocationModel.fromJson(json);
 
 ## Additional information
 
-- Map tiles © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright)
+- Map data © [OpenStreetMap contributors](https://www.openstreetmap.org/copyright), tiles © [OpenMapTiles](https://openmaptiles.org), served by [OpenFreeMap](https://openfreemap.org); the picker shows this credit on the map
+- `assets/styles/positron.json` is OpenFreeMap's Positron style, derived from the OpenMapTiles Positron GL style (code BSD-3-Clause, design CC-BY 4.0 by CARTO)
+- OpenFreeMap serves vector tiles up to zoom 14; deeper tiles are cut from their zoom 14 tile and painted at full resolution, so zooming in stays sharp
 - Geocoding provided by [Nominatim](https://nominatim.org/) — please respect the [usage policy](https://operations.osmfoundation.org/policies/nominatim/)
 - File bugs and feature requests on the project's issue tracker
 - Contributions are welcome — open a pull request with tests and a description of the change
