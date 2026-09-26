@@ -15,7 +15,7 @@ class MyApp extends StatelessWidget {
       title: 'Location Picker Example',
       debugShowCheckedModeBanner: false,
       locale: const Locale('en'),
-      supportedLocales: const [Locale('ar'), Locale('en')],
+      supportedLocales: const [Locale('en')],
       localizationsDelegates: const [
         GlobalMaterialLocalizations.delegate,
         GlobalWidgetsLocalizations.delegate,

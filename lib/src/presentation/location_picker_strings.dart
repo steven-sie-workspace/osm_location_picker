@@ -2,11 +2,8 @@ import 'package:flutter/material.dart';
 
 /// Localised UI strings used by [LocationPickerView].
 ///
-/// Use [LocationPickerStrings.en] or [LocationPickerStrings.ar] for built-in
-/// translations, or supply your own by constructing this class directly.
-///
-/// [LocationPickerStrings.of] automatically selects the correct locale based
-/// on the ambient [BuildContext].
+/// [LocationPickerStrings.en] is the built-in (English) set; supply your own
+/// translations by constructing this class directly.
 class LocationPickerStrings {
   /// Title displayed in the app bar.
   final String title;
@@ -47,10 +44,16 @@ class LocationPickerStrings {
   /// Shown when the address search services cannot be reached.
   final String searchFailed;
 
-  /// Label of the button that repeats a failed search.
+  /// Label of the button that repeats a failed search or location lookup.
   final String retry;
 
-  /// Creates a [LocationPickerStrings]; [searchFailed] and [retry] default to English.
+  /// Heading of the full-screen error shown when the device is offline.
+  final String noInternetTitle;
+
+  /// Heading of the full-screen error shown for any other failure.
+  final String errorTitle;
+
+  /// Creates a [LocationPickerStrings]; the optional fields default to English.
   const LocationPickerStrings({
     required this.title,
     required this.fetchingLocation,
@@ -66,25 +69,9 @@ class LocationPickerStrings {
     required this.noResults,
     this.searchFailed = "Couldn't search right now. Check your connection.",
     this.retry = 'Try again',
+    this.noInternetTitle = 'No internet connection',
+    this.errorTitle = 'Something went wrong',
   });
-
-  /// Returns Arabic (العربية) UI strings.
-  factory LocationPickerStrings.ar() => const LocationPickerStrings(
-    title: 'تحديد الموقع',
-    fetchingLocation: 'جاري جلب الموقع...',
-    locationFetchFailed: 'فشل جلب الموقع',
-    unknownLocation: 'موقع غير معروف',
-    confirmLocation: 'تأكيد الموقع',
-    currentLocation: 'الموقع الحالي',
-    noInternet: 'لا يوجد اتصال بالإنترنت، يرجى المحاولة مرة أخرى!',
-    serviceDisabled: 'خدمات الموقع معطلة',
-    permissionDenied: 'تم رفض إذن الوصول للموقع',
-    permissionPermanentlyDenied: 'تم رفض إذن الوصول للموقع بشكل دائم',
-    searchHint: 'ابحث عن موقع...',
-    noResults: 'لا توجد نتائج',
-    searchFailed: 'تعذّر البحث الآن. تحقق من الاتصال.',
-    retry: 'حاول مرة أخرى',
-  );
 
   /// Returns English UI strings.
   factory LocationPickerStrings.en() => const LocationPickerStrings(
@@ -102,13 +89,6 @@ class LocationPickerStrings {
     noResults: 'No results found',
   );
 
-  /// Returns the appropriate strings for the ambient locale.
-  ///
-  /// Falls back to [LocationPickerStrings.en] for any locale other than `ar`.
-  factory LocationPickerStrings.of(BuildContext context) {
-    final languageCode = Localizations.localeOf(context).languageCode;
-    return languageCode == 'ar'
-        ? LocationPickerStrings.ar()
-        : LocationPickerStrings.en();
-  }
+  /// The default strings when none are passed to [LocationPickerView]: always [LocationPickerStrings.en].
+  factory LocationPickerStrings.of(BuildContext context) => LocationPickerStrings.en();
 }

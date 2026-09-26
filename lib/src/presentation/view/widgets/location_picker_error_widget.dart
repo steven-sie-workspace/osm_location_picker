@@ -1,6 +1,8 @@
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
+import '../../../utils/location_picker_failure.dart';
+import '../../location_picker_strings.dart';
 import '../../location_picker_theme.dart';
 
 class LocationPickerErrorWidget extends StatelessWidget {
@@ -8,6 +10,7 @@ class LocationPickerErrorWidget extends StatelessWidget {
   final VoidCallback? onRetry;
   final VoidCallback? onDismiss;
   final LocationPickerTheme theme;
+  final LocationPickerStrings strings;
 
   const LocationPickerErrorWidget({
     super.key,
@@ -15,6 +18,7 @@ class LocationPickerErrorWidget extends StatelessWidget {
     this.onRetry,
     this.onDismiss,
     required this.theme,
+    required this.strings,
   });
 
   @override
@@ -22,10 +26,10 @@ class LocationPickerErrorWidget extends StatelessWidget {
     final errorMessage = message != null ? message.toString() : 'Unexpected error occurred';
 
     // Check if offline failure
-    final isOffline = errorMessage.contains('لا يوجد') || 
-                      errorMessage.toLowerCase().contains('internet') || 
-                      errorMessage.toLowerCase().contains('offline') || 
-                      errorMessage.toLowerCase().contains('connection');
+    final isOffline = message is OfflineFailure ||
+        errorMessage.toLowerCase().contains('internet') ||
+        errorMessage.toLowerCase().contains('offline') ||
+        errorMessage.toLowerCase().contains('connection');
 
     final String? errorLottie = isOffline ? theme.noInternetLottieAsset : theme.errorLottieAsset;
 
@@ -57,13 +61,7 @@ class LocationPickerErrorWidget extends StatelessWidget {
 
             // Error Title
             Text(
-              isOffline
-                  ? (Localizations.localeOf(context).languageCode == 'ar'
-                      ? 'لا يوجد اتصال بالإنترنت'
-                      : 'No Internet Connection')
-                  : (Localizations.localeOf(context).languageCode == 'ar'
-                      ? 'حدث خطأ ما'
-                      : 'Something went wrong'),
+              isOffline ? strings.noInternetTitle : strings.errorTitle,
               style: TextStyle(
                 fontSize: 18,
                 fontWeight: FontWeight.w600,
@@ -96,9 +94,7 @@ class LocationPickerErrorWidget extends StatelessWidget {
                 onPressed: onRetry ?? onDismiss,
                 icon: const Icon(Icons.refresh_rounded),
                 label: Text(
-                  Localizations.localeOf(context).languageCode == 'ar'
-                      ? 'إعادة المحاولة'
-                      : 'Try Again',
+                  strings.retry,
                   style: const TextStyle(
                     fontSize: 14,
                     fontWeight: FontWeight.w600,
