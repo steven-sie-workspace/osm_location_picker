@@ -1,3 +1,8 @@
+## 1.0.5
+
+- Fix: the map was covered by "API KEY REQUIRED" because CARTO basemaps now need an API key. The map now uses OpenFreeMap vector tiles in the same Positron style, painted on the device by `vector_tile_renderer` (pure Dart, so it also runs on HarmonyOS), sharp up to zoom 18.
+- Added the OpenFreeMap / OpenMapTiles / OpenStreetMap attribution on the map.
+
 ## 1.0.4
 
 - Fix: added macOS App Sandbox location entitlements and usage description keys to enable GPS location picking.

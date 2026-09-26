@@ -5,6 +5,8 @@ import 'package:flutter_map/flutter_map.dart';
 import 'package:latlong2/latlong.dart';
 import 'package:lottie/lottie.dart';
 
+import '../../../tiles/openfreemap_attribution.dart';
+import '../../../tiles/openfreemap_tile_provider.dart';
 import '../../view_model/cubit/base_state.dart';
 import '../../view_model/cubit/location_picker_cubit.dart';
 import '../../view_model/cubit/location_picker_states.dart';
@@ -32,10 +34,14 @@ class LocationPickerBody extends StatefulWidget {
 class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProviderStateMixin {
   late final MapController _mapController;
 
+  /// Created once so tiles stay cached across rebuilds; the [TileLayer] disposes it.
+  late final OpenFreeMapTileProvider _tileProvider;
+
   @override
   void initState() {
     super.initState();
     _mapController = MapController();
+    _tileProvider = OpenFreeMapTileProvider();
   }
 
   @override
@@ -161,11 +167,8 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
                   },
                 ),
                 children: [
-                  TileLayer(
-                    urlTemplate: 'https://{s}.basemaps.cartocdn.com/rastertiles/light_all/{z}/{x}/{y}{r}.png',
-                    userAgentPackageName: 'com.location_picker.app',
-                    subdomains: const ['a', 'b', 'c', 'd'],
-                  ),
+                  TileLayer(tileProvider: _tileProvider, userAgentPackageName: 'com.location_picker.app'),
+                  const OpenFreeMapAttribution(),
                 ],
               ),
             ),
