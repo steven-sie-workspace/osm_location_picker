@@ -1,3 +1,9 @@
+## 1.0.6
+
+- Map labels show English (or Latin-script) names only; a place with neither is left unlabelled instead of showing its local script.
+- The map data credit is a small translucent pill at the bottom right, under the Confirm button (was a full-width `flutter_map` strip), and it keeps its colours in dark mode.
+- New `LocationPickerView.fallbackLatLng`: where the map is centred until the device location is known (defaults to the previous Baghdad centre).
+
 ## 1.0.5
 
 - Fix: the map was covered by "API KEY REQUIRED" because CARTO basemaps now need an API key. The map now uses OpenFreeMap vector tiles in the same Positron style, painted on the device by `vector_tile_renderer` (pure Dart, so it also runs on HarmonyOS), sharp up to zoom 18.

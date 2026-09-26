@@ -1,23 +1,34 @@
 import 'package:flutter/material.dart';
-import 'package:flutter_map/flutter_map.dart';
 
-import 'openfreemap_tile_provider.dart';
-
-/// The data credit OpenFreeMap tiles must show, as a [FlutterMap] child placed after the tile layer.
+/// The data credit OpenFreeMap tiles must show, as a small translucent pill to lay over the map.
+///
+/// Place it outside any colour filter applied to the map so it keeps its own colours. It stays on
+/// one line and fades out at the end if the width it is given is too narrow.
 class OpenFreeMapAttribution extends StatelessWidget {
-  /// Creates the credit, pinned to [alignment] of the map.
-  const OpenFreeMapAttribution({super.key, this.alignment = Alignment.bottomRight, this.backgroundColor});
+  /// Creates the credit pill.
+  const OpenFreeMapAttribution({super.key, required this.backgroundColor, required this.textColor});
 
-  /// Where on the map the credit sits.
-  final Alignment alignment;
+  /// The credit text, as short as the OpenStreetMap, OpenMapTiles and OpenFreeMap licences allow.
+  static const String text = '© OpenStreetMap · OpenMapTiles · OpenFreeMap';
 
-  /// The credit's background; defaults to the theme's surface colour.
-  final Color? backgroundColor;
+  /// The pill's colour; drawn at 85% opacity so the map shows through.
+  final Color backgroundColor;
+
+  /// The credit's text colour; drawn at 60% opacity so it stays unobtrusive.
+  final Color textColor;
 
   @override
-  Widget build(BuildContext context) => SimpleAttributionWidget(
-    source: const Text(OpenFreeMapTileProvider.attribution, style: TextStyle(fontSize: 10)),
-    alignment: alignment,
-    backgroundColor: backgroundColor,
+  Widget build(BuildContext context) => DecoratedBox(
+    decoration: BoxDecoration(color: backgroundColor.withValues(alpha: 0.85), borderRadius: BorderRadius.circular(10)),
+    child: Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+      child: Text(
+        text,
+        maxLines: 1,
+        softWrap: false,
+        overflow: TextOverflow.fade,
+        style: TextStyle(fontSize: 10, height: 1.2, color: textColor.withValues(alpha: 0.6)),
+      ),
+    ),
   );
 }

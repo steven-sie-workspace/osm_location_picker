@@ -11,17 +11,22 @@ import '../../location_picker_strings.dart';
 
 class LocationPickerCubit extends Cubit<LocationPickerStates>
     with SafeEmitMixin<LocationPickerStates> {
-  static const LatLng _fallbackLatLng = LatLng(33.3152, 44.3661);
+  /// The upstream package's default [fallbackLatLng] (Baghdad).
+  static const LatLng defaultFallbackLatLng = LatLng(33.3152, 44.3661);
+
+  /// Where the map is centred until a location is known, and when none can be found.
+  final LatLng fallbackLatLng;
   final LocationPickerStrings strings;
 
   LocationPickerCubit({
     LatLng? initialLatLng,
     String? initialAddress,
     required this.strings,
+    this.fallbackLatLng = LocationPickerCubit.defaultFallbackLatLng,
   }) : super(
          LocationPickerStates(
            position: initialLatLng,
-           currentCenter: initialLatLng ?? _fallbackLatLng,
+           currentCenter: initialLatLng ?? fallbackLatLng,
            addressData: BaseState(
              state: (initialLatLng != null && initialAddress != null)
                  ? StatusState.success
@@ -119,7 +124,7 @@ class LocationPickerCubit extends Cubit<LocationPickerStates>
       getAddressFromLatLng(latLng);
     } catch (error) {
       final fallbackPosition =
-          state.currentCenter ?? state.position ?? _fallbackLatLng;
+          state.currentCenter ?? state.position ?? fallbackLatLng;
 
       // Automatically fallback to manual selection mode centered at the fallback position
       getAddressFromLatLng(fallbackPosition);
@@ -246,7 +251,7 @@ class LocationPickerCubit extends Cubit<LocationPickerStates>
 
   void dismissError() {
     final fallbackPosition =
-        state.currentCenter ?? state.position ?? _fallbackLatLng;
+        state.currentCenter ?? state.position ?? fallbackLatLng;
     emit(
       state.copyWith(
         position: fallbackPosition,
