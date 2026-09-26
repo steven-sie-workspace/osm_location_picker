@@ -32,12 +32,24 @@ class LocationPickerView extends StatelessWidget {
   /// the ambient [ThemeData]) when not provided.
   final LocationPickerTheme? theme;
 
+  /// Where the map is centred while the device location is being fetched, and when it can't be found.
+  ///
+  /// Defaults to [LocationPickerCubit.defaultFallbackLatLng].
+  final LatLng fallbackLatLng;
+
   /// UI text overrides. Defaults to [LocationPickerStrings.of] (locale-aware)
   /// when not provided.
   final LocationPickerStrings? strings;
 
   /// Creates a [LocationPickerView].
-  const LocationPickerView({super.key, this.initialLatLng, this.initialAddress, this.theme, this.strings});
+  const LocationPickerView({
+    super.key,
+    this.initialLatLng,
+    this.initialAddress,
+    this.theme,
+    this.strings,
+    this.fallbackLatLng = LocationPickerCubit.defaultFallbackLatLng,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -51,6 +63,7 @@ class LocationPickerView extends StatelessWidget {
           initialLatLng: initialLatLng,
           initialAddress: initialAddress,
           strings: activeStrings,
+          fallbackLatLng: fallbackLatLng,
         );
         final address = initialAddress;
         if (initialLatLng == null) {

@@ -109,7 +109,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
         final hasPosition = state.position != null;
 
         // The map is always rendered as the base layer, centering on the current resolved position or current center fallback.
-        final initialMapCenter = state.position ?? state.currentCenter ?? const LatLng(33.3152, 44.3661);
+        final initialMapCenter = state.position ?? state.currentCenter ?? cubit.fallbackLatLng;
 
         final addressText =
             (state.addressData.state == StatusState.loading ||
@@ -168,8 +168,22 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
                 ),
                 children: [
                   TileLayer(tileProvider: _tileProvider, userAgentPackageName: 'com.location_picker.app'),
-                  const OpenFreeMapAttribution(),
                 ],
+              ),
+            ),
+
+            // Map data credit, level with the My Location button and outside the dark-mode colour filter
+            Positioned(
+              left: 20,
+              right: 82, // clear of the 50 px My Location button at right: 20, plus a 12 px gap
+              bottom: 100,
+              height: 50,
+              child: Align(
+                alignment: AlignmentDirectional.centerStart,
+                child: OpenFreeMapAttribution(
+                  backgroundColor: widget.theme.cardColor,
+                  textColor: widget.theme.textDarkColor,
+                ),
               ),
             ),
 

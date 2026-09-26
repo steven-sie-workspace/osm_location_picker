@@ -19,7 +19,7 @@ import 'source_tile.dart';
 /// stays sharp. Everything is pure Dart, so it runs on every platform Flutter runs on,
 /// HarmonyOS included.
 ///
-/// Show [OpenFreeMapTileProvider.attribution] on the map, as required by the data licences.
+/// Show an `OpenFreeMapAttribution` over the map, as required by the data licences.
 ///
 /// ```dart
 /// TileLayer(
@@ -47,9 +47,6 @@ class OpenFreeMapTileProvider extends TileProvider {
 
   /// The OpenFreeMap TileJSON that names the current tile URL template.
   static const String defaultTileJsonUrl = 'https://tiles.openfreemap.org/planet';
-
-  /// The attribution the data licences require to be visible on the map.
-  static const String attribution = 'OpenFreeMap © OpenMapTiles © OpenStreetMap contributors';
 
   static const String _styleAsset = 'packages/osm_location_picker/assets/styles/positron.json';
 
