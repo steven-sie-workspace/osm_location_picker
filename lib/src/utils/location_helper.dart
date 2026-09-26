@@ -2,6 +2,7 @@ import 'dart:convert';
 import 'package:dio/dio.dart';
 import 'package:geolocator/geolocator.dart';
 import 'location_picker_failure.dart';
+import 'location_search_service.dart';
 
 class LocationHelper {
   static final Map<String, String> _osmCache = {};
@@ -12,11 +13,7 @@ class LocationHelper {
     return _osmCache[key];
   }
 
-  static Future<String> getPlaceNameOSM(
-    double lat,
-    double lng, {
-    String userAgent = 'LocationPicker/1.0',
-  }) async {
+  static Future<String> getPlaceNameOSM(double lat, double lng, {String userAgent = osmUserAgent}) async {
     final key = '${lat.toStringAsFixed(4)},${lng.toStringAsFixed(4)}';
 
     if (_osmCache.containsKey(key)) {
@@ -60,8 +57,7 @@ class LocationHelper {
   static Future<Position> getCurrentLocation({
     String serviceDisabledMsg = 'Location services are disabled.',
     String permissionDeniedMsg = 'Location permission denied.',
-    String permissionPermanentlyDeniedMsg =
-        'Location permission permanently denied.',
+    String permissionPermanentlyDeniedMsg = 'Location permission permanently denied.',
     String fetchFailedMsg = 'Failed to fetch location.',
   }) async {
     final serviceEnabled = await Geolocator.isLocationServiceEnabled();
@@ -83,10 +79,7 @@ class LocationHelper {
 
     try {
       return await Geolocator.getCurrentPosition(
-        locationSettings: const LocationSettings(
-          accuracy: LocationAccuracy.high,
-          timeLimit: Duration(seconds: 5),
-        ),
+        locationSettings: const LocationSettings(accuracy: LocationAccuracy.high, timeLimit: Duration(seconds: 5)),
       );
     } catch (_) {
       try {

@@ -44,7 +44,13 @@ class LocationPickerStrings {
   /// Shown when an address search returns no results.
   final String noResults;
 
-  /// Creates a [LocationPickerStrings] with all fields required.
+  /// Shown when the address search services cannot be reached.
+  final String searchFailed;
+
+  /// Label of the button that repeats a failed search.
+  final String retry;
+
+  /// Creates a [LocationPickerStrings]; [searchFailed] and [retry] default to English.
   const LocationPickerStrings({
     required this.title,
     required this.fetchingLocation,
@@ -58,6 +64,8 @@ class LocationPickerStrings {
     required this.permissionPermanentlyDenied,
     required this.searchHint,
     required this.noResults,
+    this.searchFailed = "Couldn't search right now. Check your connection.",
+    this.retry = 'Try again',
   });
 
   /// Returns Arabic (العربية) UI strings.
@@ -74,6 +82,8 @@ class LocationPickerStrings {
     permissionPermanentlyDenied: 'تم رفض إذن الوصول للموقع بشكل دائم',
     searchHint: 'ابحث عن موقع...',
     noResults: 'لا توجد نتائج',
+    searchFailed: 'تعذّر البحث الآن. تحقق من الاتصال.',
+    retry: 'حاول مرة أخرى',
   );
 
   /// Returns English UI strings.

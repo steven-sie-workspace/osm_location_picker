@@ -1,0 +1,185 @@
+{
+ "type": "FeatureCollection",
+ "features": [
+  {
+   "type": "Feature",
+   "properties": {
+    "osm_type": "W",
+    "osm_id": 133076254,
+    "osm_key": "shop",
+    "osm_value": "mall",
+    "type": "house",
+    "housenumber": "3",
+    "name": "Sunway Pyramid",
+    "street": "Jalan PJS 11/15",
+    "locality": "Sunway City",
+    "district": "Sunway City",
+    "city": "Subang Jaya City Council",
+    "county": "Petaling",
+    "state": "Selangor",
+    "country": "Malaysia",
+    "postcode": "47500",
+    "countrycode": "MY",
+    "extent": [
+     101.6052817,
+     3.0734173,
+     101.608876,
+     3.0715994
+    ]
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     101.60655,
+     3.0724851
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "osm_type": "N",
+    "osm_id": 10795233098,
+    "osm_key": "leisure",
+    "osm_value": "park",
+    "type": "other",
+    "name": "Sunway Pyramid Hotel",
+    "street": "Bandar Sunway",
+    "locality": "PJS 11",
+    "district": "Sunway City",
+    "city": "Petaling Jaya",
+    "county": "Petaling",
+    "state": "Selangor",
+    "country": "Malaysia",
+    "postcode": "47500",
+    "countrycode": "MY"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     101.6084031,
+     3.0709404
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "osm_type": "W",
+    "osm_id": 103302419,
+    "osm_key": "highway",
+    "osm_value": "service",
+    "type": "street",
+    "name": "Sunway Pyramid Car Park Entry",
+    "locality": "Taman Dato' Hormat",
+    "district": "Sunway City",
+    "city": "Subang Jaya City Council",
+    "county": "Petaling",
+    "state": "Selangor",
+    "country": "Malaysia",
+    "postcode": "46150",
+    "countrycode": "MY",
+    "extent": [
+     101.6035485,
+     3.0737044,
+     101.604397,
+     3.0735858
+    ]
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     101.6039716,
+     3.073631
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "osm_type": "W",
+    "osm_id": 541594072,
+    "osm_key": "building",
+    "osm_value": "commercial",
+    "type": "house",
+    "name": "Sunway Pyramid West",
+    "street": "Jalan PJS 11/2",
+    "locality": "Sunway City",
+    "district": "Sunway City",
+    "city": "Subang Jaya City Council",
+    "county": "Petaling",
+    "state": "Selangor",
+    "country": "Malaysia",
+    "postcode": "46150",
+    "countrycode": "MY",
+    "extent": [
+     101.6041097,
+     3.0731667,
+     101.6052997,
+     3.072598
+    ]
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     101.6047108,
+     3.0728125
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "osm_type": "N",
+    "osm_id": 11901718875,
+    "osm_key": "highway",
+    "osm_value": "bus_stop",
+    "type": "house",
+    "name": "Sunway Pyramid (Opp)",
+    "street": "New Pantai Expressway",
+    "locality": "Taman Dato' Hormat",
+    "district": "Sunway City",
+    "city": "Subang Jaya City Council",
+    "county": "Petaling",
+    "state": "Selangor",
+    "country": "Malaysia",
+    "postcode": "46150",
+    "countrycode": "MY"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     101.6058042,
+     3.0740873
+    ]
+   }
+  },
+  {
+   "type": "Feature",
+   "properties": {
+    "osm_type": "N",
+    "osm_id": 9223854465,
+    "osm_key": "highway",
+    "osm_value": "bus_stop",
+    "type": "house",
+    "name": "Sunway Pyramid",
+    "street": "Jalan PJS 11/15",
+    "locality": "Sunway City",
+    "district": "Sunway City",
+    "city": "Subang Jaya City Council",
+    "county": "Petaling",
+    "state": "Selangor",
+    "country": "Malaysia",
+    "postcode": "46150",
+    "countrycode": "MY"
+   },
+   "geometry": {
+    "type": "Point",
+    "coordinates": [
+     101.6058673,
+     3.0736162
+    ]
+   }
+  }
+ ]
+}
