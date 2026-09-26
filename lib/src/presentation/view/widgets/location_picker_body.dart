@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart' show kIsWeb, defaultTargetPlatform, TargetPlatform;
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:flutter_map/flutter_map.dart';
@@ -7,6 +6,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../../tiles/openfreemap_attribution.dart';
 import '../../../tiles/openfreemap_tile_provider.dart';
+import '../../../utils/place_search_result.dart';
 import '../../view_model/cubit/base_state.dart';
 import '../../view_model/cubit/location_picker_cubit.dart';
 import '../../view_model/cubit/location_picker_states.dart';
@@ -198,11 +198,14 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
               addressText: addressText,
               theme: widget.theme,
               onTap: () {
-                final isMobile =
-                    !kIsWeb &&
-                    (defaultTargetPlatform == TargetPlatform.android || defaultTargetPlatform == TargetPlatform.iOS);
-                if (isMobile) {
-                  showModalBottomSheet(
+                void onSelected(BuildContext sheetContext, PlaceSearchResult place) {
+                  cubit.selectLocation(place.latLng, place.address);
+                  Navigator.pop(sheetContext);
+                }
+
+                // Bottom sheet on phone-width screens (any OS, HarmonyOS included), dialog on wider ones.
+                if (MediaQuery.sizeOf(context).width < 600) {
+                  showModalBottomSheet<void>(
                     context: context,
                     isScrollControlled: true,
                     backgroundColor: Colors.transparent,
@@ -210,23 +213,19 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
                         (ctx) => LocationSearchBottomSheet(
                           theme: widget.theme,
                           strings: widget.strings,
-                          onLocationSelected: (latLng, address) {
-                            cubit.selectLocation(latLng, address);
-                            Navigator.pop(ctx);
-                          },
+                          near: state.currentCenter,
+                          onSelected: (place) => onSelected(ctx, place),
                         ),
                   );
                 } else {
-                  showDialog(
+                  showDialog<void>(
                     context: context,
                     builder:
                         (ctx) => LocationSearchDialog(
                           theme: widget.theme,
                           strings: widget.strings,
-                          onLocationSelected: (latLng, address) {
-                            cubit.selectLocation(latLng, address);
-                            Navigator.pop(ctx);
-                          },
+                          near: state.currentCenter,
+                          onSelected: (place) => onSelected(ctx, place),
                         ),
                   );
                 }

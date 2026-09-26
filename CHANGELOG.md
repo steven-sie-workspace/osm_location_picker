@@ -1,3 +1,14 @@
+## 1.0.7
+
+- Search suggests as you type from Photon (free, no key), which matches partial words ("sunway pyr", "lorong desh") that Nominatim could not, ranks places near the map centre first, and drops duplicate entries.
+- Pressing search falls back to Nominatim (biased to the map centre) when Photon finds nothing or is down. Nominatim is no longer called per keystroke, which its usage policy forbids.
+- Results show the place name with its area underneath; the picked address is the full line.
+- A failed search says so with a Try again button, instead of "No results found". New `LocationPickerStrings.searchFailed` and `retry` (default to English).
+- Only the latest query's results are shown: an older request still in flight is cancelled.
+- Requests identify the package with a proper User-Agent, as the OSM services require.
+- The search opens as a bottom sheet on phone-width screens on any OS (HarmonyOS included) and as a dialog on wider ones; it was Android/iOS only.
+- Breaking: `NominatimService` / `NominatimSearchResult` are replaced by `LocationSearchService` / `PlaceSearchResult`.
+
 ## 1.0.6
 
 - Map labels show English (or Latin-script) names only; a place with neither is left unlabelled instead of showing its local script.

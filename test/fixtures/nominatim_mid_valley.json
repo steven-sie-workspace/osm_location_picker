@@ -1,0 +1,23 @@
+[
+ {
+  "place_id": 255562967,
+  "licence": "Data © OpenStreetMap contributors, ODbL 1.0. http://osm.org/copyright",
+  "osm_type": "way",
+  "osm_id": 922804567,
+  "lat": "3.1176552",
+  "lon": "101.6773741",
+  "category": "shop",
+  "type": "mall",
+  "place_rank": 30,
+  "importance": 0.3687910674753876,
+  "addresstype": "shop",
+  "name": "Mid Valley Megamall",
+  "display_name": "Mid Valley Megamall, Mid Valley City, Lingkaran Syed Putra, Mid Valley City, Seputeh, Kuala Lumpur, 59200, Malaysia",
+  "boundingbox": [
+   "3.1158820",
+   "3.1194300",
+   "101.6761125",
+   "101.6784755"
+  ]
+ }
+]

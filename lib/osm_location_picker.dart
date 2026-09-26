@@ -16,4 +16,5 @@ export 'src/models/location_model.dart';
 export 'src/presentation/location_picker_strings.dart';
 export 'src/presentation/location_picker_theme.dart';
 export 'src/presentation/view/location_picker_view.dart';
-export 'src/utils/nominatim_service.dart';
+export 'src/utils/location_search_service.dart';
+export 'src/utils/place_search_result.dart';
