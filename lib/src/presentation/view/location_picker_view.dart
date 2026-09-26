@@ -37,6 +37,18 @@ class LocationPickerView extends StatelessWidget {
   /// Defaults to [LocationPickerCubit.defaultFallbackLatLng].
   final LatLng fallbackLatLng;
 
+  /// Returns the device position, replacing the built-in `geolocator` lookup.
+  ///
+  /// Use it where `geolocator` has no implementation for the platform, or to share the app's own
+  /// location service. Throw to report failure; the picker then stays at [fallbackLatLng] for
+  /// manual picking. When `null`, `geolocator` is used (on HarmonyOS, add an OpenHarmony
+  /// implementation of it such as `geolocator_ohos` to the app).
+  final Future<LatLng> Function()? currentLocation;
+
+  /// Countries search results are limited to, as ISO 3166-1 alpha-2 codes (e.g. `['my']`);
+  /// empty (the default) searches worldwide.
+  final List<String> countryCodes;
+
   /// UI text overrides. Defaults to [LocationPickerStrings.of] (locale-aware)
   /// when not provided.
   final LocationPickerStrings? strings;
@@ -49,6 +61,8 @@ class LocationPickerView extends StatelessWidget {
     this.theme,
     this.strings,
     this.fallbackLatLng = LocationPickerCubit.defaultFallbackLatLng,
+    this.currentLocation,
+    this.countryCodes = const [],
   });
 
   @override
@@ -64,6 +78,7 @@ class LocationPickerView extends StatelessWidget {
           initialAddress: initialAddress,
           strings: activeStrings,
           fallbackLatLng: fallbackLatLng,
+          currentLocationProvider: currentLocation,
         );
         final address = initialAddress;
         if (initialLatLng == null) {
@@ -108,7 +123,7 @@ class LocationPickerView extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-          body: LocationPickerBody(theme: activeTheme, strings: activeStrings),
+          body: LocationPickerBody(theme: activeTheme, strings: activeStrings, countryCodes: countryCodes),
         ),
       ),
     );

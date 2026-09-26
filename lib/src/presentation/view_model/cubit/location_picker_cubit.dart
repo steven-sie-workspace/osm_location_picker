@@ -1,6 +1,6 @@
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:latlong2/latlong.dart';
-import 'package:internet_connection_checker_plus/internet_connection_checker_plus.dart';
+import 'package:dio/dio.dart';
 
 import 'base_state.dart';
 import 'safe_emit_mixin.dart';
@@ -18,11 +18,16 @@ class LocationPickerCubit extends Cubit<LocationPickerStates>
   final LatLng fallbackLatLng;
   final LocationPickerStrings strings;
 
+  /// Replaces the built-in `geolocator` lookup of the device position when set (see
+  /// [LocationPickerView.currentLocation]); it throws to report failure.
+  final Future<LatLng> Function()? currentLocationProvider;
+
   LocationPickerCubit({
     LatLng? initialLatLng,
     String? initialAddress,
     required this.strings,
     this.fallbackLatLng = LocationPickerCubit.defaultFallbackLatLng,
+    this.currentLocationProvider,
   }) : super(
          LocationPickerStates(
            position: initialLatLng,
@@ -82,14 +87,7 @@ class LocationPickerCubit extends Cubit<LocationPickerStates>
     );
 
     try {
-      final res = await LocationHelper.getCurrentLocation(
-        serviceDisabledMsg: strings.serviceDisabled,
-        permissionDeniedMsg: strings.permissionDenied,
-        permissionPermanentlyDeniedMsg: strings.permissionPermanentlyDenied,
-        fetchFailedMsg: strings.locationFetchFailed,
-      );
-
-      final latLng = LatLng(res.latitude, res.longitude);
+      final LatLng latLng = await (currentLocationProvider ?? _geolocatorPosition)();
 
       // Check cache first to avoid flashing loading state
       final cachedAddress = LocationHelper.getCachedPlaceName(
@@ -190,22 +188,6 @@ class LocationPickerCubit extends Cubit<LocationPickerStates>
       ),
     );
 
-    // Check for internet connection
-    final isConnected = await InternetConnection().hasInternetAccess;
-    if (!isConnected) {
-      emit(
-        state.copyWith(
-          position: position,
-          currentCenter: position,
-          addressData: BaseState(
-            state: StatusState.failure,
-            exception: OfflineFailure(strings.noInternet),
-          ),
-        ),
-      );
-      return;
-    }
-
     try {
       final address = await LocationHelper.getPlaceNameOSM(
         position.latitude,
@@ -230,12 +212,29 @@ class LocationPickerCubit extends Cubit<LocationPickerStates>
           currentCenter: position,
           addressData: BaseState(
             state: StatusState.failure,
-            exception: LocationPickerFailure(strings.locationFetchFailed),
+            // A connection that can't be opened means the device is offline; anything else is a lookup failure.
+            exception: _isOffline(e)
+                ? OfflineFailure(strings.noInternet)
+                : LocationPickerFailure(strings.locationFetchFailed),
           ),
         ),
       );
     }
   }
+
+  Future<LatLng> _geolocatorPosition() async {
+    final position = await LocationHelper.getCurrentLocation(
+      serviceDisabledMsg: strings.serviceDisabled,
+      permissionDeniedMsg: strings.permissionDenied,
+      permissionPermanentlyDeniedMsg: strings.permissionPermanentlyDenied,
+      fetchFailedMsg: strings.locationFetchFailed,
+    );
+    return LatLng(position.latitude, position.longitude);
+  }
+
+  static bool _isOffline(Object error) =>
+      error is DioException &&
+      (error.type == DioExceptionType.connectionError || error.type == DioExceptionType.connectionTimeout);
 
   void selectLocation(LatLng position, String address) {
     emit(

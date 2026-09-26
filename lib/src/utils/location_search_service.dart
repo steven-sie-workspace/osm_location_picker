@@ -26,10 +26,15 @@ class LocationSearchException implements Exception {
 ///   when Photon finds nothing or is down. Nominatim only matches whole words and its usage
 ///   policy forbids autocomplete, so it is never called per keystroke.
 ///
-/// Both rank places near [near] (usually the map centre) first.
+/// Both rank places near [near] (usually the map centre) first, and return only places in
+/// [countryCodes] when it is not empty.
 class LocationSearchService {
   /// Creates the service; [dio] is injectable for tests.
-  LocationSearchService({Dio? dio, this.language = 'en', this.limit = 8}) : _dio = dio ?? Dio();
+  ///
+  /// [countryCodes] are ISO 3166-1 alpha-2 codes in any case, e.g. `{'my'}` for Malaysia.
+  LocationSearchService({Dio? dio, this.language = 'en', this.limit = 8, Iterable<String> countryCodes = const []})
+    : countryCodes = {for (final String code in countryCodes) code.trim().toLowerCase()}..remove(''),
+      _dio = dio ?? Dio();
 
   static const String _photonUrl = 'https://photon.komoot.io/api/';
   static const String _nominatimUrl = 'https://nominatim.openstreetmap.org/search';
@@ -39,6 +44,9 @@ class LocationSearchService {
 
   /// The most results returned.
   final int limit;
+
+  /// The lower-case country codes results are limited to; empty means worldwide.
+  final Set<String> countryCodes;
 
   final Dio _dio;
 
@@ -90,13 +98,15 @@ class LocationSearchService {
         'limit': limit + 4, // headroom for duplicates dropped below
         if (language.isNotEmpty) 'lang': language,
         if (near != null) ...{'lat': near.latitude, 'lon': near.longitude, 'location_bias_scale': 0.3},
+        // Photon filters by one country server-side; several are filtered below.
+        if (countryCodes.length == 1) 'countrycode': countryCodes.single,
       },
       options: _options,
       cancelToken: cancelToken,
     );
     final Object? features = (response.data as Map<String, dynamic>?)?['features'];
     if (features is! List) return const [];
-    return _distinct(features.whereType<Map<String, dynamic>>().map(PlaceSearchResult.fromPhoton));
+    return _distinct(features.whereType<Map<String, dynamic>>().where(_inCountries).map(PlaceSearchResult.fromPhoton));
   }
 
   Future<List<PlaceSearchResult>> _nominatim(String q, LatLng? near, CancelToken? cancelToken) async {
@@ -107,6 +117,7 @@ class LocationSearchService {
         'format': 'jsonv2',
         'limit': limit,
         if (language.isNotEmpty) 'accept-language': language,
+        if (countryCodes.isNotEmpty) 'countrycodes': countryCodes.join(','),
         // Prefer (but don't restrict to) a ~1° box around the map centre.
         if (near != null)
           'viewbox': [
@@ -122,6 +133,12 @@ class LocationSearchService {
     final Object? list = response.data;
     if (list is! List) return const [];
     return _distinct(list.whereType<Map<String, dynamic>>().map(PlaceSearchResult.fromNominatim));
+  }
+
+  bool _inCountries(Map<String, dynamic> feature) {
+    if (countryCodes.isEmpty) return true;
+    final Object? code = (feature['properties'] as Map<String, dynamic>?)?['countrycode'];
+    return code is String && countryCodes.contains(code.toLowerCase());
   }
 
   Options get _options => Options(

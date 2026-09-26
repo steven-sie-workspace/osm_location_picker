@@ -6,6 +6,7 @@ import 'package:lottie/lottie.dart';
 
 import '../../../tiles/openfreemap_attribution.dart';
 import '../../../tiles/openfreemap_tile_provider.dart';
+import '../../../utils/location_search_service.dart';
 import '../../../utils/place_search_result.dart';
 import '../../view_model/cubit/base_state.dart';
 import '../../view_model/cubit/location_picker_cubit.dart';
@@ -25,7 +26,15 @@ class LocationPickerBody extends StatefulWidget {
   final LocationPickerTheme theme;
   final LocationPickerStrings strings;
 
-  const LocationPickerBody({super.key, required this.theme, required this.strings});
+  /// Countries search results are limited to; empty searches worldwide.
+  final List<String> countryCodes;
+
+  const LocationPickerBody({
+    super.key,
+    required this.theme,
+    required this.strings,
+    this.countryCodes = const [],
+  });
 
   @override
   State<LocationPickerBody> createState() => _LocationPickerBodyState();
@@ -36,6 +45,9 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
 
   /// Created once so tiles stay cached across rebuilds; the [TileLayer] disposes it.
   late final OpenFreeMapTileProvider _tileProvider;
+
+  /// Shared by every search opened from this picker.
+  late final LocationSearchService _searchService = LocationSearchService(countryCodes: widget.countryCodes);
 
   @override
   void initState() {
@@ -214,6 +226,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
                           theme: widget.theme,
                           strings: widget.strings,
                           near: state.currentCenter,
+                          searchService: _searchService,
                           onSelected: (place) => onSelected(ctx, place),
                         ),
                   );
@@ -225,6 +238,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
                           theme: widget.theme,
                           strings: widget.strings,
                           near: state.currentCenter,
+                          searchService: _searchService,
                           onSelected: (place) => onSelected(ctx, place),
                         ),
                   );

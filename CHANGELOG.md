@@ -1,3 +1,11 @@
+## 1.0.9
+
+- Map tiles are cached on disk (app cache directory, 30 days, 50 MB) and reused on later runs and offline, together with the tile URL template. Web uses the browser cache. Falls back to the system temp directory where `path_provider` has no implementation.
+- New `LocationPickerView.countryCodes`: limit search results to given countries (Photon filters one country server-side, several client-side; Nominatim gets `countrycodes`).
+- New `LocationPickerView.currentLocation`: supply the device position instead of `geolocator`, e.g. on HarmonyOS; `geolocator_ohos` also plugs into `geolocator` directly.
+- Removed `internet_connection_checker_plus`: "offline" is now decided from the address lookup's own connection error, instead of pinging third-party hosts before every lookup.
+- The error screen shows its Try again button on every platform (was hidden on Android/iOS, which only had pull to refresh).
+
 ## 1.0.8
 
 - Breaking: dropped Arabic. `LocationPickerStrings.ar()` is removed and `LocationPickerStrings.of` always returns English; pass your own `LocationPickerStrings` for other languages.

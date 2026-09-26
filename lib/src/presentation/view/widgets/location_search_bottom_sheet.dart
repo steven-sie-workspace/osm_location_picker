@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:latlong2/latlong.dart';
 
+import '../../../utils/location_search_service.dart';
 import '../../../utils/place_search_result.dart';
 import '../../location_picker_strings.dart';
 import '../../location_picker_theme.dart';
@@ -13,6 +14,9 @@ class LocationSearchBottomSheet extends StatelessWidget {
 
   /// Where results are ranked around, usually the map centre.
   final LatLng? near;
+
+  /// The search backend; a worldwide [LocationSearchService] when `null`.
+  final LocationSearchService? searchService;
   final ValueChanged<PlaceSearchResult> onSelected;
 
   const LocationSearchBottomSheet({
@@ -21,6 +25,7 @@ class LocationSearchBottomSheet extends StatelessWidget {
     required this.strings,
     required this.onSelected,
     this.near,
+    this.searchService,
   });
 
   @override
@@ -58,6 +63,7 @@ class LocationSearchBottomSheet extends StatelessWidget {
                     theme: theme,
                     strings: strings,
                     near: near,
+                    searchService: searchService,
                     scrollController: scrollController,
                     onSelected: onSelected,
                   ),

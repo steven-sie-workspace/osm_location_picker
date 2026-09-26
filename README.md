@@ -31,8 +31,9 @@ Users can pan/zoom the map, search for addresses, and tap to confirm a location.
 | macOS    | ✅        | Full support                                           |
 | Windows  | ✅        | Full support                                           |
 | Linux    | ✅        | Full support                                           |
+| HarmonyOS | ✅       | Map, search and cache are pure Dart; for GPS add `geolocator_ohos` or pass `currentLocation` (see below) |
 
-> **Note:** GPS / current-location features depend on the [`location`](https://pub.dev/packages/location) package. On platforms where device location is unavailable or denied, the map still opens and the user can search or tap a location manually — so the picker always works regardless of permission status.
+> **Note:** GPS / current-location features depend on the [`geolocator`](https://pub.dev/packages/geolocator) package, unless you pass `currentLocation`. On platforms where device location is unavailable or denied, the map still opens and the user can search or tap a location manually — so the picker always works regardless of permission status.
 
 ## Getting started
 
@@ -164,6 +165,28 @@ LocationPickerView(
 ```
 
 Built-in: `LocationPickerStrings.en()`, used when no `strings` are passed. Pass your own `LocationPickerStrings` for any other language.
+
+### Limit search to countries
+
+```dart
+LocationPickerView(countryCodes: const ['my']) // Malaysia only; several codes allowed
+```
+
+### HarmonyOS
+
+Everything except GPS is pure Dart (map rendering, search, the tile cache, connectivity), so it runs on
+HarmonyOS as is. For the device position, either:
+
+- add an OpenHarmony implementation of `geolocator` to the app's HarmonyOS build, e.g.
+  [`geolocator_ohos`](https://pub.dev/packages/geolocator_ohos), which plugs into `geolocator`, or
+- pass your own position lookup: `LocationPickerView(currentLocation: () async => myLatLng)`. Throw to
+  report failure; the map then stays at `fallbackLatLng` for manual picking.
+
+### Offline map tiles
+
+Downloaded tiles are kept in the app's cache directory (`path_provider`, or the system temp directory
+where it has no implementation) for 30 days, up to 50 MB, and reused on later runs and offline. The web
+build relies on the browser's HTTP cache instead.
 
 ### `LocationModel`
 
