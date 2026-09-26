@@ -20,6 +20,34 @@ void main() {
     expect(cubit.state.currentCenter, kualaLumpur);
   });
 
+  test('the app can supply the device position instead of geolocator', () async {
+    const LatLng sibu = LatLng(2.3091, 111.8561);
+    final LocationPickerCubit cubit = LocationPickerCubit(
+      strings: LocationPickerStrings.en(),
+      currentLocationProvider: () async => sibu,
+    );
+    addTearDown(cubit.close);
+
+    await cubit.getCurrentLocation();
+
+    expect(cubit.state.position, sibu);
+    expect(cubit.state.currentCenter, sibu);
+  });
+
+  test('when the supplied position fails, the map stays at the fallback for manual picking', () async {
+    const LatLng kualaLumpur = LatLng(3.1390, 101.6869);
+    final LocationPickerCubit cubit = LocationPickerCubit(
+      strings: LocationPickerStrings.en(),
+      fallbackLatLng: kualaLumpur,
+      currentLocationProvider: () async => throw Exception('no location service'),
+    );
+    addTearDown(cubit.close);
+
+    await cubit.getCurrentLocation();
+
+    expect(cubit.state.currentCenter, kualaLumpur);
+  });
+
   test('map labels use English or Latin names only', () {
     final Map<String, dynamic> style =
         jsonDecode(File('assets/styles/positron.json').readAsStringSync()) as Map<String, dynamic>;

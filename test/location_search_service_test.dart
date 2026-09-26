@@ -173,5 +173,57 @@ void main() {
 
       expect(await service.search('zzqx'), isEmpty);
     });
+    test('limits results to one country on the Photon server', () async {
+      final _FakeAdapter adapter = _FakeAdapter({_photon: (200, _fixture('photon_sunway_pyr.json'))});
+      final LocationSearchService service = LocationSearchService(
+        countryCodes: const ['MY'],
+        dio: Dio()..httpClientAdapter = adapter,
+      );
+
+      await service.suggest('sunway pyr');
+
+      expect(adapter.requests.single.queryParameters, containsPair('countrycode', 'my'));
+    });
+
+    test('keeps only places in the given countries when there are several', () async {
+      Map<String, dynamic> place(String name, String country) => {
+        'geometry': {
+          'coordinates': [101.6, 3.1],
+        },
+        'properties': {'name': name, 'countrycode': country},
+      };
+      final _FakeAdapter adapter = _FakeAdapter({
+        _photon: (
+          200,
+          {
+            'features': [place('Orchard Road', 'SG'), place('Jalan Ampang', 'MY'), place('Orchard Beach', 'US')],
+          },
+        ),
+      });
+      final LocationSearchService service = LocationSearchService(
+        countryCodes: const ['my', 'sg'],
+        dio: Dio()..httpClientAdapter = adapter,
+      );
+
+      final List<PlaceSearchResult> results = await service.suggest('or');
+
+      expect(results.map((r) => r.title), ['Orchard Road', 'Jalan Ampang']);
+      expect(adapter.requests.single.queryParameters.containsKey('countrycode'), isFalse);
+    });
+
+    test('passes the countries to the Nominatim fallback', () async {
+      final _FakeAdapter adapter = _FakeAdapter({
+        _photon: (200, {'features': <Object>[]}),
+        _nominatim: (200, _fixture('nominatim_mid_valley.json')),
+      });
+      final LocationSearchService service = LocationSearchService(
+        countryCodes: const ['my', 'sg'],
+        dio: Dio()..httpClientAdapter = adapter,
+      );
+
+      await service.search('mid valley megamall');
+
+      expect(adapter.requests.last.queryParameters, containsPair('countrycodes', 'my,sg'));
+    });
   });
 }

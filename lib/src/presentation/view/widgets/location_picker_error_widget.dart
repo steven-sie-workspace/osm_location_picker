@@ -1,4 +1,3 @@
-import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:lottie/lottie.dart';
 import '../../../utils/location_picker_failure.dart';
@@ -84,11 +83,8 @@ class LocationPickerErrorWidget extends StatelessWidget {
               textAlign: TextAlign.center,
             ),
 
-            // Retry button for non-mobile platforms (web & desktop)
-            if ((onRetry != null || onDismiss != null) &&
-                (kIsWeb ||
-                    (defaultTargetPlatform != TargetPlatform.android &&
-                        defaultTargetPlatform != TargetPlatform.iOS))) ...[
+            // Retry button on every platform (pull to refresh also works on touch screens)
+            if (onRetry != null || onDismiss != null) ...[
               const SizedBox(height: 24),
               ElevatedButton.icon(
                 onPressed: onRetry ?? onDismiss,
@@ -118,11 +114,7 @@ class LocationPickerErrorWidget extends StatelessWidget {
 
     final VoidCallback? retryCallback = onRetry ?? onDismiss;
 
-    final bool isMobile = !kIsWeb &&
-        (defaultTargetPlatform == TargetPlatform.android ||
-            defaultTargetPlatform == TargetPlatform.iOS);
-
-    if (retryCallback != null && isMobile) {
+    if (retryCallback != null) {
       return RefreshIndicator(
         color: theme.primaryColor,
         onRefresh: () async {

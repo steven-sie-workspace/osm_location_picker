@@ -10,6 +10,7 @@ import 'package:http/http.dart' as http;
 import 'package:vector_tile_renderer/vector_tile_renderer.dart' as vtr;
 
 import 'source_tile.dart';
+import 'tile_cache.dart';
 
 /// A [TileProvider] that draws OpenFreeMap vector tiles on the device in the Positron style,
 /// the light grey look of CARTO's `light_all` basemap.
@@ -31,14 +32,17 @@ import 'source_tile.dart';
 class OpenFreeMapTileProvider extends TileProvider {
   /// Creates a provider that renders at [pixelRatio] (defaults to the device's, clamped to 1–3).
   ///
-  /// [httpClient] is closed on [dispose] only when this provider created it.
+  /// [httpClient] is closed on [dispose] only when this provider created it. Downloaded tiles are
+  /// kept in [cache] (default [TileCache.platformDefault]) and reused offline and on later runs.
   OpenFreeMapTileProvider({
     double? pixelRatio,
     http.Client? httpClient,
     this.tileJsonUrl = defaultTileJsonUrl,
     this.maxCachedSourceTiles = 16,
+    TileCache? cache,
     super.headers,
-  }) : pixelRatio =
+  }) : cache = cache ?? TileCache.platformDefault(),
+       pixelRatio =
            (pixelRatio ?? ui.PlatformDispatcher.instance.implicitView?.devicePixelRatio ?? 2)
                .clamp(1.0, 3.0)
                .toDouble(),
@@ -63,6 +67,11 @@ class OpenFreeMapTileProvider extends TileProvider {
 
   /// How many decoded zoom ≤ 14 tiles are kept in memory for reuse by deeper zooms.
   final int maxCachedSourceTiles;
+
+  /// Where downloaded tiles and the tile URL template are kept between runs.
+  final TileCache cache;
+
+  static const String _urlTemplateKey = 'tilejson-url-template';
 
   final http.Client _client;
   final bool _ownsClient;
@@ -138,7 +147,12 @@ class OpenFreeMapTileProvider extends TileProvider {
         .replaceAll('{z}', '${coordinates.z}')
         .replaceAll('{x}', '${coordinates.x}')
         .replaceAll('{y}', '${coordinates.y}');
-    final Uint8List bytes = await _get(url);
+    // Tile URLs carry OpenFreeMap's data version, so a cached tile is never stale for its URL.
+    Uint8List? bytes = await cache.read(url);
+    if (bytes == null) {
+      bytes = await _get(url);
+      await cache.write(url, bytes);
+    }
     if (bytes.isEmpty) return vtr.Tileset(const {});
 
     final vtr.TileData data = await compute(_decode, (theme, bytes));
@@ -146,17 +160,29 @@ class OpenFreeMapTileProvider extends TileProvider {
   }
 
   /// Reads the tile URL template from the TileJSON; OpenFreeMap versions it with each data release.
+  ///
+  /// Offline, the template from the last successful read is used, so cached tiles still load.
   Future<String> _loadUrlTemplate() =>
-      _urlTemplate ??= _get(tileJsonUrl)
-          .then((Uint8List body) {
-            final Object? tiles = (jsonDecode(utf8.decode(body)) as Map<String, dynamic>)['tiles'];
-            if (tiles is List && tiles.isNotEmpty && tiles.first is String) return tiles.first as String;
-            throw FormatException('No tile URL in $tileJsonUrl');
-          })
-          .catchError((Object error, StackTrace stackTrace) {
-            _urlTemplate = null;
-            return Future<String>.error(error, stackTrace);
-          });
+      _urlTemplate ??= _fetchUrlTemplate().catchError((Object error, StackTrace stackTrace) {
+        _urlTemplate = null;
+        return Future<String>.error(error, stackTrace);
+      });
+
+  Future<String> _fetchUrlTemplate() async {
+    try {
+      final Object? tiles = (jsonDecode(utf8.decode(await _get(tileJsonUrl))) as Map<String, dynamic>)['tiles'];
+      if (tiles is! List || tiles.isEmpty || tiles.first is! String) {
+        throw FormatException('No tile URL in $tileJsonUrl');
+      }
+      final String template = tiles.first as String;
+      await cache.write(_urlTemplateKey, Uint8List.fromList(utf8.encode(template)));
+      return template;
+    } catch (_) {
+      final Uint8List? cached = await cache.read(_urlTemplateKey);
+      if (cached == null) rethrow;
+      return utf8.decode(cached);
+    }
+  }
 
   Future<Uint8List> _get(String url) async {
     final http.Response response = await _client.get(Uri.parse(url), headers: headers);
