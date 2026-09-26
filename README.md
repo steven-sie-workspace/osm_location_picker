@@ -17,7 +17,7 @@ Users can pan/zoom the map, search for addresses, and tap to confirm a location.
 - 🔍 Search-as-you-type address suggestions from [Photon](https://photon.komoot.io) (matches partial words, ranked near the map centre), with [Nominatim](https://nominatim.org) as a fallback when you press search
 - 📍 Jump to the device's current GPS location with one tap
 - 🎨 Fully themeable via `LocationPickerTheme`
-- 🌐 Built-in Arabic and English UI strings — extend with `LocationPickerStrings`
+- 🌐 Built-in English UI strings — translate by passing your own `LocationPickerStrings`
 - 🏗️ BLoC/Cubit state management — no global state pollution
 - 📦 Zero external API keys needed
 
@@ -163,8 +163,7 @@ LocationPickerView(
 )
 ```
 
-Built-in factories: `LocationPickerStrings.en()` and `LocationPickerStrings.ar()`.
-`LocationPickerStrings.of(context)` picks one automatically based on `Localizations.localeOf(context)`.
+Built-in: `LocationPickerStrings.en()`, used when no `strings` are passed. Pass your own `LocationPickerStrings` for any other language.
 
 ### `LocationModel`
 

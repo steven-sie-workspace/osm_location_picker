@@ -261,6 +261,7 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
                   color: isDark ? Colors.black.withValues(alpha: 0.85) : Colors.white.withValues(alpha: 0.85),
                   child: LocationPickerErrorWidget(
                     theme: widget.theme,
+                    strings: widget.strings,
                     message: state.addressData.exception,
                     onDismiss: () => cubit.dismissError(),
                     onRetry: () {

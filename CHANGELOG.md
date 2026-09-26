@@ -1,3 +1,10 @@
+## 1.0.8
+
+- Breaking: dropped Arabic. `LocationPickerStrings.ar()` is removed and `LocationPickerStrings.of` always returns English; pass your own `LocationPickerStrings` for other languages.
+- The full-screen error's headings and retry button come from `LocationPickerStrings` (new `noInternetTitle` and `errorTitle`, plus the existing `retry`), instead of hard-coded English/Arabic text chosen by locale.
+- The offline error is recognised by its `OfflineFailure` type, so it works whatever language the message is in (it looked for Arabic or English words).
+- The example app no longer lists Arabic as a supported locale.
+
 ## 1.0.7
 
 - Search suggests as you type from Photon (free, no key), which matches partial words ("sunway pyr", "lorong desh") that Nominatim could not, ranks places near the map centre first, and drops duplicate entries.
