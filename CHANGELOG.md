@@ -1,3 +1,7 @@
+## 1.0.10
+
+- New `LocationPickerView.searchFallback` (`LocationSearchService.fallback`): another source, such as the platform geocoder, searched alongside OpenStreetMap when the user submits a search, for places OpenStreetMap is missing. Its results come first, except those within 100 m of an OpenStreetMap result; a fallback that throws or takes over 8 s is ignored, and it is never called while typing.
+
 ## 1.0.9
 
 - Map tiles are cached on disk (app cache directory, 30 days, 50 MB) and reused on later runs and offline, together with the tile URL template. Web uses the browser cache. Falls back to the system temp directory where `path_provider` has no implementation.

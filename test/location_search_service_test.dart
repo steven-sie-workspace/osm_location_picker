@@ -1,3 +1,4 @@
+import 'dart:async';
 import 'dart:convert';
 import 'dart:io';
 import 'dart:typed_data';
@@ -173,6 +174,100 @@ void main() {
 
       expect(await service.search('zzqx'), isEmpty);
     });
+    group('with a fallback', () {
+      const PlaceSearchResult deltaMall = PlaceSearchResult(
+        title: 'delta mall',
+        subtitle: 'Jalan Delta, Sibu, Malaysia',
+        latLng: LatLng(2.3, 111.83),
+      );
+
+      LocationSearchService withFallback(_FakeAdapter adapter, PlaceSearchFallback fallback) => LocationSearchService(
+        dio: Dio()..httpClientAdapter = adapter,
+        fallback: fallback,
+        fallbackTimeout: const Duration(milliseconds: 50),
+      );
+
+      test('on submit, lists its results before OpenStreetMap results', () async {
+        final _FakeAdapter adapter = _FakeAdapter({_photon: (200, _fixture('photon_sunway_pyr.json'))});
+        final List<String> asked = [];
+        final LocationSearchService service = withFallback(adapter, (query, {near}) async {
+          asked.add(query);
+          return const [deltaMall];
+        });
+
+        final List<PlaceSearchResult> results = await service.search(' delta mall ', near: _kl);
+
+        expect(asked, ['delta mall']);
+        expect(results.first, deltaMall);
+        expect(results.skip(1).first.title, 'Sunway Pyramid');
+      });
+
+      test('drops its results within 100 m of an OpenStreetMap result', () async {
+        final _FakeAdapter adapter = _FakeAdapter({_photon: (200, _fixture('photon_sunway_pyr.json'))});
+        final List<dynamic> features = (_fixture('photon_sunway_pyr.json') as Map)['features'] as List;
+        final LatLng pyramid = PlaceSearchResult.fromPhoton(features.first as Map<String, dynamic>)!.latLng;
+        final LocationSearchService service = withFallback(
+          adapter,
+          (query, {near}) async => [
+            PlaceSearchResult(
+              title: 'sunway pyramid',
+              subtitle: 'Subang Jaya',
+              latLng: LatLng(pyramid.latitude + 0.0003, pyramid.longitude),
+            ),
+          ],
+        );
+
+        final List<PlaceSearchResult> results = await service.search('sunway pyramid');
+
+        expect(results.map((r) => r.title), isNot(contains('sunway pyramid')));
+        expect(results.first.title, 'Sunway Pyramid');
+      });
+
+      test('is never asked while typing', () async {
+        final _FakeAdapter adapter = _FakeAdapter({_photon: (200, _fixture('photon_sunway_pyr.json'))});
+        bool asked = false;
+        final LocationSearchService service = withFallback(adapter, (query, {near}) async {
+          asked = true;
+          return const [];
+        });
+
+        await service.suggest('sunway pyr');
+
+        expect(asked, isFalse);
+      });
+
+      test('keeps the OpenStreetMap results when it fails or is too slow', () async {
+        final _FakeAdapter adapter = _FakeAdapter({_photon: (200, _fixture('photon_sunway_pyr.json'))});
+
+        final List<PlaceSearchResult> afterError = await withFallback(
+          adapter,
+          (query, {near}) => Future.error(StateError('no geocoder')),
+        ).search('sunway pyr');
+        final List<PlaceSearchResult> afterTimeout = await withFallback(
+          adapter,
+          (query, {near}) => Completer<List<PlaceSearchResult>>().future,
+        ).search('sunway pyr');
+
+        expect(afterError.first.title, 'Sunway Pyramid');
+        expect(afterTimeout.first.title, 'Sunway Pyramid');
+      });
+
+      test('answers on its own when OpenStreetMap is down', () async {
+        final LocationSearchService service = withFallback(
+          _FakeAdapter({}),
+          (query, {near}) async => const [deltaMall],
+        );
+
+        expect(await service.search('delta mall'), [deltaMall]);
+      });
+
+      test('fails when OpenStreetMap is down and it finds nothing', () async {
+        final LocationSearchService service = withFallback(_FakeAdapter({}), (query, {near}) async => const []);
+
+        await expectLater(service.search('delta mall'), throwsA(isA<LocationSearchException>()));
+      });
+    });
+
     test('limits results to one country on the Photon server', () async {
       final _FakeAdapter adapter = _FakeAdapter({_photon: (200, _fixture('photon_sunway_pyr.json'))});
       final LocationSearchService service = LocationSearchService(

@@ -5,6 +5,7 @@ import 'package:latlong2/latlong.dart';
 
 import '../location_picker_theme.dart';
 import '../location_picker_strings.dart';
+import '../../utils/location_search_service.dart';
 import '../view_model/cubit/location_picker_cubit.dart';
 import 'widgets/location_picker_body.dart';
 
@@ -49,6 +50,10 @@ class LocationPickerView extends StatelessWidget {
   /// empty (the default) searches worldwide.
   final List<String> countryCodes;
 
+  /// Searched alongside OpenStreetMap when the user submits a search, for places it is missing,
+  /// e.g. the platform geocoder. See [LocationSearchService.fallback].
+  final PlaceSearchFallback? searchFallback;
+
   /// UI text overrides. Defaults to [LocationPickerStrings.of] (locale-aware)
   /// when not provided.
   final LocationPickerStrings? strings;
@@ -63,6 +68,7 @@ class LocationPickerView extends StatelessWidget {
     this.fallbackLatLng = LocationPickerCubit.defaultFallbackLatLng,
     this.currentLocation,
     this.countryCodes = const [],
+    this.searchFallback,
   });
 
   @override
@@ -123,7 +129,12 @@ class LocationPickerView extends StatelessWidget {
               onPressed: () => Navigator.of(context).pop(),
             ),
           ),
-          body: LocationPickerBody(theme: activeTheme, strings: activeStrings, countryCodes: countryCodes),
+          body: LocationPickerBody(
+            theme: activeTheme,
+            strings: activeStrings,
+            countryCodes: countryCodes,
+            searchFallback: searchFallback,
+          ),
         ),
       ),
     );

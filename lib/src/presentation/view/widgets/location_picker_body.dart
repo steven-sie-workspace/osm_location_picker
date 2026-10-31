@@ -29,11 +29,15 @@ class LocationPickerBody extends StatefulWidget {
   /// Countries search results are limited to; empty searches worldwide.
   final List<String> countryCodes;
 
+  /// Searched alongside OpenStreetMap when a search is submitted; see [LocationSearchService.fallback].
+  final PlaceSearchFallback? searchFallback;
+
   const LocationPickerBody({
     super.key,
     required this.theme,
     required this.strings,
     this.countryCodes = const [],
+    this.searchFallback,
   });
 
   @override
@@ -47,7 +51,10 @@ class _LocationPickerBodyState extends State<LocationPickerBody> with TickerProv
   late final OpenFreeMapTileProvider _tileProvider;
 
   /// Shared by every search opened from this picker.
-  late final LocationSearchService _searchService = LocationSearchService(countryCodes: widget.countryCodes);
+  late final LocationSearchService _searchService = LocationSearchService(
+    countryCodes: widget.countryCodes,
+    fallback: widget.searchFallback,
+  );
 
   @override
   void initState() {

@@ -18,6 +18,11 @@ class LocationSearchException implements Exception {
   String toString() => 'LocationSearchException: $cause';
 }
 
+/// Searches a source outside OpenStreetMap for a submitted [query], such as the platform geocoder.
+///
+/// Return an empty list when nothing is found. Errors are ignored; see [LocationSearchService.fallback].
+typedef PlaceSearchFallback = Future<List<PlaceSearchResult>> Function(String query, {LatLng? near});
+
 /// Free, key-less place search over OpenStreetMap data.
 ///
 /// - [suggest] runs as the user types, on [Photon](https://photon.komoot.io), which matches
@@ -27,14 +32,21 @@ class LocationSearchException implements Exception {
 ///   policy forbids autocomplete, so it is never called per keystroke.
 ///
 /// Both rank places near [near] (usually the map centre) first, and return only places in
-/// [countryCodes] when it is not empty.
+/// [countryCodes] when it is not empty. On submit, [fallback] (when given) is searched as well,
+/// for places missing from OpenStreetMap.
 class LocationSearchService {
   /// Creates the service; [dio] is injectable for tests.
   ///
   /// [countryCodes] are ISO 3166-1 alpha-2 codes in any case, e.g. `{'my'}` for Malaysia.
-  LocationSearchService({Dio? dio, this.language = 'en', this.limit = 8, Iterable<String> countryCodes = const []})
-    : countryCodes = {for (final String code in countryCodes) code.trim().toLowerCase()}..remove(''),
-      _dio = dio ?? Dio();
+  LocationSearchService({
+    Dio? dio,
+    this.language = 'en',
+    this.limit = 8,
+    Iterable<String> countryCodes = const [],
+    this.fallback,
+    this.fallbackTimeout = const Duration(seconds: 8),
+  }) : countryCodes = {for (final String code in countryCodes) code.trim().toLowerCase()}..remove(''),
+       _dio = dio ?? Dio();
 
   static const String _photonUrl = 'https://photon.komoot.io/api/';
   static const String _nominatimUrl = 'https://nominatim.openstreetmap.org/search';
@@ -47,6 +59,19 @@ class LocationSearchService {
 
   /// The lower-case country codes results are limited to; empty means worldwide.
   final Set<String> countryCodes;
+
+  /// Searched alongside OpenStreetMap on submit (never per keystroke), e.g. the platform geocoder.
+  ///
+  /// Its results come first, except those within 100 m of an OpenStreetMap result, which
+  /// already names that spot. It is the caller's job to keep them to [countryCodes]. A
+  /// fallback that throws or takes longer than [fallbackTimeout] counts as finding nothing.
+  final PlaceSearchFallback? fallback;
+
+  /// How long [search] waits for [fallback].
+  final Duration fallbackTimeout;
+
+  /// Results this close together are taken to be the same place.
+  static const double _sameSpotMeters = 100;
 
   final Dio _dio;
 
@@ -65,13 +90,37 @@ class LocationSearchService {
     }
   }
 
-  /// Results for a submitted [query]: Photon's, or Nominatim's when Photon has none or fails.
+  /// Results for a submitted [query]: [fallback]'s, then Photon's (or Nominatim's when Photon has
+  /// none or fails).
   ///
-  /// Throws [LocationSearchException] only when both services fail.
+  /// Throws [LocationSearchException] only when both OpenStreetMap services fail and [fallback]
+  /// finds nothing.
   Future<List<PlaceSearchResult>> search(String query, {LatLng? near, CancelToken? cancelToken}) async {
     final String q = query.trim();
     if (q.isEmpty) return const [];
 
+    final Future<List<PlaceSearchResult>> extra = _fallback(q, near);
+    List<PlaceSearchResult> osm = const [];
+    LocationSearchException? osmError;
+    try {
+      osm = await _osm(q, near, cancelToken);
+    } on LocationSearchException catch (error) {
+      osmError = error;
+    }
+
+    final List<PlaceSearchResult> found = await extra;
+    if (cancelToken?.isCancelled ?? false) throw cancelToken!.cancelError!;
+    if (osmError != null && found.isEmpty) throw osmError;
+    const Distance distance = Distance();
+    return _distinct([
+      for (final PlaceSearchResult place in found)
+        if (!osm.any((PlaceSearchResult other) => distance(place.latLng, other.latLng) < _sameSpotMeters)) place,
+      ...osm,
+    ]);
+  }
+
+  /// Photon's results for [q], or Nominatim's when Photon has none or fails.
+  Future<List<PlaceSearchResult>> _osm(String q, LatLng? near, CancelToken? cancelToken) async {
     Object? photonError;
     try {
       final List<PlaceSearchResult> results = await _photon(q, near, cancelToken);
@@ -86,6 +135,18 @@ class LocationSearchService {
     } on DioException catch (error) {
       if (CancelToken.isCancel(error)) rethrow;
       if (photonError != null) throw LocationSearchException(error);
+      return const [];
+    }
+  }
+
+  /// [fallback]'s results for [q]; empty when there is none, or it fails or is too slow.
+  Future<List<PlaceSearchResult>> _fallback(String q, LatLng? near) async {
+    final PlaceSearchFallback? search = fallback;
+    if (search == null) return const [];
+    try {
+      return await search(q, near: near).timeout(fallbackTimeout);
+    } catch (_) {
+      // An extra source: OpenStreetMap's results (or error) stand on their own.
       return const [];
     }
   }
