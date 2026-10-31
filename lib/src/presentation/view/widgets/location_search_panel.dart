@@ -130,7 +130,7 @@ class _LocationSearchPanelState extends State<LocationSearchPanel> {
 
   @override
   Widget build(BuildContext context) {
-    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    final bool isDark = widget.theme.hasDarkCards;
     final Color textColor = widget.theme.textDarkColor;
 
     return Column(
