@@ -172,6 +172,21 @@ Built-in: `LocationPickerStrings.en()`, used when no `strings` are passed. Pass 
 LocationPickerView(countryCodes: const ['my']) // Malaysia only; several codes allowed
 ```
 
+### Search another source for places missing from OpenStreetMap
+
+When the user submits a search, `searchFallback` is asked as well, e.g. the platform geocoder (free on
+Android and iOS). Its results are listed first, except those within 100 m of an OpenStreetMap result;
+if it throws or takes over 8 s it is ignored. It is never called while typing.
+
+```dart
+LocationPickerView(
+  searchFallback: (query, {near}) async => [
+    for (final hit in await myGeocoder(query))
+      PlaceSearchResult(title: query, subtitle: hit.address, latLng: hit.latLng),
+  ],
+)
+```
+
 ### HarmonyOS
 
 Everything except GPS is pure Dart (map rendering, search, the tile cache, connectivity), so it runs on
