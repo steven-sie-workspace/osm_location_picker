@@ -1,3 +1,7 @@
+## 1.0.11
+
+- Fix: in dark mode with a light picker theme, the search field was black with dark text (nearly invisible), and the dividers and drag handle were dark. The search sheet now shades them by the theme's `cardColor` (new `LocationPickerTheme.hasDarkCards`), not the app's light/dark mode.
+
 ## 1.0.10
 
 - New `LocationPickerView.searchFallback` (`LocationSearchService.fallback`): another source, such as the platform geocoder, searched alongside OpenStreetMap when the user submits a search, for places OpenStreetMap is missing. Its results come first, except those within 100 m of an OpenStreetMap result; a fallback that throws or takes over 8 s is ignored, and it is never called while typing.

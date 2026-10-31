@@ -43,14 +43,19 @@ void main() {
   late _FakeSearch search;
   late List<PlaceSearchResult> picked;
 
-  Future<void> pumpPanel(WidgetTester tester) async {
+  Future<void> pumpPanel(
+    WidgetTester tester, {
+    ThemeData? appTheme,
+    LocationPickerTheme theme = const LocationPickerTheme(),
+  }) async {
     search = _FakeSearch();
     picked = [];
     await tester.pumpWidget(
       MaterialApp(
+        theme: appTheme,
         home: Scaffold(
           body: LocationSearchPanel(
-            theme: const LocationPickerTheme(),
+            theme: theme,
             strings: LocationPickerStrings.en(),
             searchService: search,
             onSelected: picked.add,
@@ -141,5 +146,15 @@ void main() {
 
     expect(search.suggested, ['klcc', 'klcc']);
     expect(find.text('KLCC'), findsOneWidget);
+  });
+
+  testWidgets('shades the search field by the picker theme, not the app dark mode', (WidgetTester tester) async {
+    Color? fill() => tester.widget<TextField>(find.byType(TextField)).decoration?.fillColor;
+
+    await pumpPanel(tester, appTheme: ThemeData(brightness: Brightness.dark));
+    expect(fill(), const Color(0xfff5f5f5));
+
+    await pumpPanel(tester, theme: const LocationPickerTheme(cardColor: Color(0xff0A100B)));
+    expect(fill(), const Color(0xff121212));
   });
 }

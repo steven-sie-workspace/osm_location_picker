@@ -69,6 +69,11 @@ class LocationPickerTheme {
     this.noInternetLottieAsset,
   });
 
+  /// Whether [cardColor] is dark, so the search field, dividers and drag handle on it take dark shades.
+  ///
+  /// Follows the card, not the app's light/dark mode: an app may keep the picker light in dark mode.
+  bool get hasDarkCards => ThemeData.estimateBrightnessForColor(cardColor) == Brightness.dark;
+
   /// Returns a copy of this theme with the given fields replaced.
   LocationPickerTheme copyWith({
     Color? primaryColor,

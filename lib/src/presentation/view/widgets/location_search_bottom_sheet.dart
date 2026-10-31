@@ -30,7 +30,7 @@ class LocationSearchBottomSheet extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final isDark = Theme.of(context).brightness == Brightness.dark;
+    final isDark = theme.hasDarkCards;
 
     return Padding(
       // Keep the sheet above the keyboard.
